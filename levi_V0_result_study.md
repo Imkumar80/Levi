@@ -47,3 +47,223 @@ Actions:
 
 ---
 
+
+
+## V0 Evaluation Benchmark (Phase A)
+
+**OVERALL RESULTS**
+- Mean Recall@5: 0.800
+- Mean Precision@5: 0.160
+- Mean MRR: 0.733
+- Total retrieved tokens across 10 queries: 1148
+
+**RESULTS BY CATEGORY**
+- **EXACT_MATCH (4 tasks):**
+  - Recall@5: 1.000
+  - Precision@5: 0.200
+  - MRR: 1.000
+- **PARAPHRASE (2 tasks):**
+  - Recall@5: 1.000
+  - Precision@5: 0.200
+  - MRR: 0.667
+- **DISTRACTOR (2 tasks):**
+  - Recall@5: 1.000
+  - Precision@5: 0.200
+  - MRR: 1.000
+- **NO_MATCH (2 tasks):**
+  - Recall@5: 0.000
+  - Precision@5: 0.000
+  - MRR: 0.000
+Running evaluation on 10 tasks...
+--------------------------------------------------
+Query: Fix Qdrant connection refused
+  Category: exact_match
+  Retrieved: ['ep_01_qdrant_success', 'ep_02_qdrant_collection_fail', 'ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file']
+  Ground Truth: ['ep_01_qdrant_success']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 122
+
+Query: My Qdrant client can't connect
+  Category: paraphrase
+  Retrieved: ['ep_01_qdrant_success', 'ep_02_qdrant_collection_fail', 'ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file']
+  Ground Truth: ['ep_01_qdrant_success']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 122
+
+Query: Create a new Qdrant collection
+  Category: distractor
+  Retrieved: ['ep_02_qdrant_collection_fail', 'ep_01_qdrant_success', 'ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file']
+  Ground Truth: ['ep_02_qdrant_collection_fail']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 122
+
+Query: Debug my Redis authentication problem
+  Category: no_match
+  Retrieved: ['ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file', 'ep_03_math_success', 'ep_01_qdrant_success']
+  Ground Truth: []
+  Recall@5: 0.00 | Precision@5: 0.00 | MRR: 0.00
+  Approx Tokens Retrieved: 112
+
+Query: Calculate the square root of 144
+  Category: exact_match
+  Retrieved: ['ep_03_math_success', 'ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file', 'ep_01_qdrant_success']
+  Ground Truth: ['ep_03_math_success']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 112
+
+Query: Find the largest file in /tmp
+  Category: exact_match
+  Retrieved: ['ep_04_largest_file', 'ep_06_write_script', 'ep_05_list_tmp_files', 'ep_03_math_success', 'ep_01_qdrant_success']
+  Ground Truth: ['ep_04_largest_file']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 112
+
+Query: Identify the biggest document inside the temporary folder
+  Category: paraphrase
+  Retrieved: ['ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file', 'ep_03_math_success', 'ep_01_qdrant_success']
+  Ground Truth: ['ep_04_largest_file']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 0.33
+  Approx Tokens Retrieved: 112
+
+Query: List all files in /tmp
+  Category: distractor
+  Retrieved: ['ep_05_list_tmp_files', 'ep_06_write_script', 'ep_04_largest_file', 'ep_03_math_success', 'ep_01_qdrant_success']
+  Ground Truth: ['ep_05_list_tmp_files']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 112
+
+Query: Write a python script to /tmp/test_script.py
+  Category: exact_match
+  Retrieved: ['ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file', 'ep_02_qdrant_collection_fail', 'ep_03_math_success']
+  Ground Truth: ['ep_06_write_script']
+  Recall@5: 1.00 | Precision@5: 0.20 | MRR: 1.00
+  Approx Tokens Retrieved: 110
+
+Query: How do I install postgresql on ubuntu?
+  Category: no_match
+  Retrieved: ['ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file', 'ep_03_math_success', 'ep_01_qdrant_success']
+  Ground Truth: []
+  Recall@5: 0.00 | Precision@5: 0.00 | MRR: 0.00
+  Approx Tokens Retrieved: 112
+
+--------------------------------------------------
+OVERALL RESULTS
+Mean Recall@5:    0.800
+Mean Precision@5: 0.160
+Mean MRR:         0.733
+Total retrieved tokens across 10 queries: 1148
+--------------------------------------------------
+RESULTS BY CATEGORY
+EXACT_MATCH (4 tasks):
+  Recall@5:    1.000
+  Precision@5: 0.200
+  MRR:         1.000
+PARAPHRASE (2 tasks):
+  Recall@5:    1.000
+  Precision@5: 0.200
+  MRR:         0.667
+DISTRACTOR (2 tasks):
+  Recall@5:    1.000
+  Precision@5: 0.200
+  MRR:         1.000
+NO_MATCH (2 tasks):
+  Recall@5:    0.000
+  Precision@5: 0.000
+  MRR:         0.000
+Running evaluation on 10 tasks...
+--------------------------------------------------
+Query: Fix Qdrant connection refused
+  Category: exact_match
+  Retrieved: ['ep_01_qdrant_success', 'ep_02_qdrant_collection_fail']
+  Ground Truth: ['ep_01_qdrant_success']
+  Recall@5: 1.00 | Precision@5: 0.50 | MRR: 1.00
+  Approx Tokens Retrieved: 56
+
+Query: My Qdrant client can't connect
+  Category: paraphrase
+  Retrieved: ['ep_01_qdrant_success', 'ep_02_qdrant_collection_fail']
+  Ground Truth: ['ep_01_qdrant_success']
+  Recall@5: 1.00 | Precision@5: 0.50 | MRR: 1.00
+  Approx Tokens Retrieved: 56
+
+Query: Create a new Qdrant collection
+  Category: distractor
+  Retrieved: ['ep_02_qdrant_collection_fail', 'ep_01_qdrant_success']
+  Ground Truth: ['ep_02_qdrant_collection_fail']
+  Recall@5: 1.00 | Precision@5: 0.50 | MRR: 1.00
+  Approx Tokens Retrieved: 56
+
+Query: Debug my Redis authentication problem
+  Category: no_match
+  Retrieved: []
+  Ground Truth: []
+  Recall@5: 1.00 | Precision@5: 1.00 | MRR: 1.00
+  Approx Tokens Retrieved: 0
+
+Query: Calculate the square root of 144
+  Category: exact_match
+  Retrieved: ['ep_03_math_success']
+  Ground Truth: ['ep_03_math_success']
+  Recall@5: 1.00 | Precision@5: 1.00 | MRR: 1.00
+  Approx Tokens Retrieved: 17
+
+Query: Find the largest file in /tmp
+  Category: exact_match
+  Retrieved: ['ep_04_largest_file', 'ep_06_write_script', 'ep_05_list_tmp_files']
+  Ground Truth: ['ep_04_largest_file']
+  Recall@5: 1.00 | Precision@5: 0.33 | MRR: 1.00
+  Approx Tokens Retrieved: 66
+
+Query: Identify the biggest document inside the temporary folder
+  Category: paraphrase
+  Retrieved: []
+  Ground Truth: ['ep_04_largest_file']
+  Recall@5: 0.00 | Precision@5: 0.00 | MRR: 0.00
+  Approx Tokens Retrieved: 0
+
+Query: List all files in /tmp
+  Category: distractor
+  Retrieved: ['ep_05_list_tmp_files', 'ep_06_write_script', 'ep_04_largest_file']
+  Ground Truth: ['ep_05_list_tmp_files']
+  Recall@5: 1.00 | Precision@5: 0.33 | MRR: 1.00
+  Approx Tokens Retrieved: 66
+
+Query: Write a python script to /tmp/test_script.py
+  Category: exact_match
+  Retrieved: ['ep_06_write_script', 'ep_05_list_tmp_files', 'ep_04_largest_file', 'ep_02_qdrant_collection_fail']
+  Ground Truth: ['ep_06_write_script']
+  Recall@5: 1.00 | Precision@5: 0.25 | MRR: 1.00
+  Approx Tokens Retrieved: 93
+
+Query: How do I install postgresql on ubuntu?
+  Category: no_match
+  Retrieved: []
+  Ground Truth: []
+  Recall@5: 1.00 | Precision@5: 1.00 | MRR: 1.00
+  Approx Tokens Retrieved: 0
+
+--------------------------------------------------
+OVERALL RESULTS
+Mean Recall@5:    0.900
+Mean Precision@5: 0.542
+Mean MRR:         0.900
+Total retrieved tokens across 10 queries: 410
+No-Match Accuracy: 1.000 (2/2)
+--------------------------------------------------
+RESULTS BY CATEGORY
+EXACT_MATCH (4 tasks):
+  Recall@5:    1.000
+  Precision@5: 0.521
+  MRR:         1.000
+PARAPHRASE (2 tasks):
+  Recall@5:    0.500
+  Precision@5: 0.250
+  MRR:         0.500
+DISTRACTOR (2 tasks):
+  Recall@5:    1.000
+  Precision@5: 0.417
+  MRR:         1.000
+NO_MATCH (2 tasks):
+  Recall@5:    1.000
+  Precision@5: 1.000
+  MRR:         1.000

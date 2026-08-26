@@ -52,6 +52,52 @@ class EpisodicMemory:
     def recent(self, n: int = 5) -> list[EpisodicRecord]:
         return sorted(self.all(), key=lambda r: r.timestamp, reverse=True)[:n]
 
+    def _tokenize(self, text: str) -> set[str]:
+        import re
+        text = text.lower()
+        text = re.sub(r'[^\w\s]', ' ', text)
+        tokens = set(text.split())
+        stopwords = {"a", "an", "the", "and", "or", "but", "if", "then", "else", "when", 
+                     "up", "down", "left", "right", "in", "out", "on", "off", "over", "under", 
+                     "again", "further", "then", "once", "here", "there", "when", "where", "why", 
+                     "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", 
+                     "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", 
+                     "s", "t", "can", "will", "just", "don", "should", "now", "my", "i", "you", "me", "to", "is", "for", "with", "do"}
+        return tokens - stopwords
+
+    def retrieve(self, query: str, k: int = 5, threshold: float = 2.0) -> list[EpisodicRecord]:
+        query_tokens = self._tokenize(query)
+        query_lower = query.lower()
+        
+        scored_records = []
+        for r in self.all():
+            score = 0.0
+            
+            # Exact tag match: +3 per matching tag
+            for tag in r.tags:
+                if tag.lower() in query_tokens or tag.lower() in query_lower:
+                    score += 3.0
+                    
+            # Task token match: +1 per overlapping token
+            task_tokens = self._tokenize(r.task)
+            overlap = query_tokens.intersection(task_tokens)
+            score += len(overlap) * 1.0
+            
+            # Exact task phrase match: +2
+            if query_lower in r.task.lower() or r.task.lower() in query_lower:
+                score += 2.0
+                
+            # Outcome success bonus: +1
+            if r.outcome.value == "success":
+                score += 1.0
+                
+            if score >= threshold:
+                scored_records.append((score, r))
+                
+        # Sort by score descending, then by timestamp descending
+        scored_records.sort(key=lambda x: (x[0], x[1].timestamp), reverse=True)
+        return [r for score, r in scored_records[:k]]
+
     def stats(self) -> dict:
         records = self.all()
         if not records:

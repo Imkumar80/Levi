@@ -1,0 +1,72 @@
+[
+  {
+    "id": "q1",
+    "query": "Fix Qdrant connection refused",
+    "category": "exact_match",
+    "ground_truth_memories": ["ep_01_qdrant_success"],
+    "distractors": ["ep_02_qdrant_collection_fail"]
+  },
+  {
+    "id": "q2",
+    "query": "My Qdrant client can't connect",
+    "category": "paraphrase",
+    "ground_truth_memories": ["ep_01_qdrant_success"],
+    "distractors": ["ep_02_qdrant_collection_fail"]
+  },
+  {
+    "id": "q3",
+    "query": "Create a new Qdrant collection",
+    "category": "distractor",
+    "ground_truth_memories": ["ep_02_qdrant_collection_fail"],
+    "distractors": ["ep_01_qdrant_success"]
+  },
+  {
+    "id": "q4",
+    "query": "Debug my Redis authentication problem",
+    "category": "no_match",
+    "ground_truth_memories": [],
+    "distractors": []
+  },
+  {
+    "id": "q5",
+    "query": "Calculate the square root of 144",
+    "category": "exact_match",
+    "ground_truth_memories": ["ep_03_math_success"],
+    "distractors": []
+  },
+  {
+    "id": "q6",
+    "query": "Find the largest file in /tmp",
+    "category": "exact_match",
+    "ground_truth_memories": ["ep_04_largest_file"],
+    "distractors": ["ep_05_list_tmp_files"]
+  },
+  {
+    "id": "q7",
+    "query": "Identify the biggest document inside the temporary folder",
+    "category": "paraphrase",
+    "ground_truth_memories": ["ep_04_largest_file"],
+    "distractors": ["ep_05_list_tmp_files"]
+  },
+  {
+    "id": "q8",
+    "query": "List all files in /tmp",
+    "category": "distractor",
+    "ground_truth_memories": ["ep_05_list_tmp_files"],
+    "distractors": ["ep_04_largest_file"]
+  },
+  {
+    "id": "q9",
+    "query": "Write a python script to /tmp/test_script.py",
+    "category": "exact_match",
+    "ground_truth_memories": ["ep_06_write_script"],
+    "distractors": []
+  },
+  {
+    "id": "q10",
+    "query": "How do I install postgresql on ubuntu?",
+    "category": "no_match",
+    "ground_truth_memories": [],
+    "distractors": ["ep_01_qdrant_success", "ep_02_qdrant_collection_fail"]
+  }
+]
