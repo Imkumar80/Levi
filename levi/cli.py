@@ -14,18 +14,26 @@ import os
 
 from .agent import LeviAgent
 from .memory import EpisodicMemory
-from .planner import MockPlanner
 from .tools import registry
 
 
 def build_agent(memory_path: str = "episodic_memory.jsonl") -> LeviAgent:
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass
+    
     memory = EpisodicMemory(memory_path)
 
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    if os.environ.get("GEMINI_API_KEY"):
+        from .planner import GeminiPlanner
+        planner = GeminiPlanner()
+    elif os.environ.get("ANTHROPIC_API_KEY"):
         from .planner import ClaudePlanner
         planner = ClaudePlanner()
     else:
-        planner = MockPlanner()
+        raise RuntimeError("No API key found. Please set GEMINI_API_KEY or ANTHROPIC_API_KEY.")
 
     return LeviAgent(planner=planner, tools=registry, memory=memory)
 
@@ -53,14 +61,30 @@ def main():
         parser.error("Provide a task, or use --stats / --recent")
 
     record = agent.run(args.task)
-    print(f"Outcome: {record.outcome.value}")
-    print(f"Notes:   {record.verifier_notes}")
-    print("Plan trace:")
+    
+    # Format the result
+    result_lines = [
+        f"## Task: {args.task}",
+        f"Outcome: {record.outcome.value}",
+        f"Notes:   {record.verifier_notes}",
+        "Plan trace:"
+    ]
     for line in record.plan:
-        print(f"  {line}")
-    print("Actions:")
+        result_lines.append(f"  {line}")
+    result_lines.append("Actions:")
     for a in record.actions:
-        print(f"  {a.tool_name}({a.tool_input}) -> {a.tool_output!r} error={a.error}")
+        result_lines.append(f"  {a.tool_name}({a.tool_input}) -> {a.tool_output!r} error={a.error}")
+    result_lines.append("\n---\n")
+    
+    result_text = "\n".join(result_lines)
+    
+    # Print to console
+    print(result_text)
+    
+    # Append to study file
+    study_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "levi_V0_result_study.md")
+    with open(study_file, "a") as f:
+        f.write(result_text + "\n")
 
 
 if __name__ == "__main__":

@@ -9,10 +9,10 @@ the memory subsystem is stable and you want to experiment with that
 tradeoff — nothing else in the loop needs to change.
 
 Two implementations:
-  - MockPlanner: no API calls, deterministic, lets you test the full
-    agent/memory/verifier loop offline.
   - ClaudePlanner: real planning via the Anthropic API. Requires
     ANTHROPIC_API_KEY in the environment.
+  - GeminiPlanner: real planning via the Gemini API. Requires
+    GEMINI_API_KEY in the environment and `google-genai` package.
 """
 
 from __future__ import annotations
@@ -41,34 +41,6 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
 
-class MockPlanner(PlannerBase):
-    """
-    Deterministic stand-in planner for offline testing.
-    Very naive: if the task mentions a calculator-friendly expression, use
-    it once and stop. Otherwise echoes the task. Replace with ClaudePlanner
-    for real use.
-    """
-
-    def next_step(self, task, tool_names, history):
-        if history:
-            return {"done": True, "reasoning": "Single-step mock planner: done after one action."}
-
-        import re
-        expr_match = re.search(r"[\d\.\s\+\-\*/\(\)]{3,}", task)
-        if expr_match and "calculator" in tool_names:
-            return {
-                "done": False,
-                "tool": "calculator",
-                "tool_input": {"expression": expr_match.group().strip()},
-                "reasoning": "Task looks like an arithmetic expression.",
-            }
-        return {
-            "done": False,
-            "tool": "echo",
-            "tool_input": {"text": task},
-            "reasoning": "No specialized tool matched; echoing task.",
-        }
-
 
 class ClaudePlanner(PlannerBase):
     """Real planner backed by the Anthropic API. Requires the `anthropic` package."""
@@ -96,5 +68,41 @@ class ClaudePlanner(PlannerBase):
             messages=[{"role": "user", "content": user}],
         )
         text = "".join(b.text for b in resp.content if b.type == "text").strip()
+        text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        return json.loads(text)
+
+
+class GeminiPlanner(PlannerBase):
+    """Real planner backed by the Gemini API. Requires the `google-genai` package."""
+
+    def __init__(self, model: str = "gemini-3.6-flash", api_key: Optional[str] = None):
+        from google import genai
+        self.client = genai.Client(api_key=api_key)
+        self.model = model
+
+    def next_step(self, task, tool_names, history):
+        system_instruction = (
+            "You are LEVI's planner. Given a task, available tools, and the "
+            "history of actions taken so far, decide the single next action.\n"
+            f"Available tools: {tool_names}\n"
+            "Respond with ONLY a JSON object, no other text, matching one of:\n"
+            '{"done": false, "tool": "<name>", "tool_input": {...}, "reasoning": "..."}\n'
+            '{"done": true, "reasoning": "..."}'
+        )
+        user = json.dumps({"task": task, "history": history})
+
+        from google.genai import types
+        config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=0.0,
+        )
+
+        resp = self.client.models.generate_content(
+            model=self.model,
+            contents=user,
+            config=config,
+        )
+        
+        text = resp.text.strip()
         text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         return json.loads(text)

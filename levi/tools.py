@@ -77,3 +77,12 @@ def write_file(path: str, content: str) -> str:
 def read_file(path: str) -> str:
     from pathlib import Path
     return Path(path).read_text()
+
+
+@registry.register("run_command")
+def run_command(command: str) -> str:
+    import subprocess
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"Command failed with exit code {result.returncode}\nStderr: {result.stderr}")
+    return result.stdout
