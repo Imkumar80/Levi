@@ -10,11 +10,20 @@ memory type exists yet), no consolidation, no scoping. Those are V1+
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from .memory import EpisodicMemory
 from .planner import PlannerBase
 from .schema import EpisodicRecord, ToolCall
 from .tools import ToolRegistry
 from . import verifier
+
+
+@dataclass
+class AgentRunResult:
+    record: EpisodicRecord
+    prompt_tokens: int
+    output_tokens: int
+    total_tokens: int
 
 
 class LeviAgent:
@@ -30,21 +39,34 @@ class LeviAgent:
         self.memory = memory
         self.max_steps = max_steps
 
-    def run(self, task: str, tags: list[str] | None = None) -> EpisodicRecord:
+    def run(self, task: str, tags: list[str] | None = None, use_memory: bool = True, read_only_memory: bool = False) -> AgentRunResult:
         plan_log: list[str] = []
         actions: list[ToolCall] = []
         history: list[dict] = []
+        
+        memories = None
+        if use_memory:
+            memories = self.memory.retrieve(task)
+            
+        if hasattr(self.planner, "reset_session_stats"):
+            self.planner.reset_session_stats()
 
         for step in range(self.max_steps):
-            decision = self.planner.next_step(task, self.tools.names(), history)
+            decision = self.planner.next_step(task, self.tools.names(), history, memories)
 
             if decision.get("done"):
                 plan_log.append(f"[stop] {decision.get('reasoning', '')}")
                 break
 
-            tool_name = decision["tool"]
+            tool_name = decision.get("tool")
             tool_input = decision.get("tool_input", {})
             reasoning = decision.get("reasoning", "")
+            
+            # Defensive check if model hallucinated tool output instead of done
+            if not tool_name:
+                plan_log.append(f"[stop] {reasoning}")
+                break
+                
             plan_log.append(f"[step {step}] {reasoning} -> {tool_name}({tool_input})")
 
             call = self.tools.run(tool_name, **tool_input)
@@ -72,5 +94,16 @@ class LeviAgent:
             verifier_notes=notes,
             tags=tags or [],
         )
-        self.memory.write(record)
-        return record
+        
+        if not read_only_memory:
+            self.memory.write(record)
+            
+        prompt_tokens = getattr(self.planner, "session_prompt_tokens", 0)
+        output_tokens = getattr(self.planner, "session_output_tokens", 0)
+        
+        return AgentRunResult(
+            record=record,
+            prompt_tokens=prompt_tokens,
+            output_tokens=output_tokens,
+            total_tokens=prompt_tokens + output_tokens
+        )

@@ -31,6 +31,7 @@ class PlannerBase(ABC):
         task: str,
         tool_names: list[str],
         history: list[dict[str, Any]],
+        memories: list[Any] | None = None,
     ) -> dict[str, Any]:
         """
         Return either:
@@ -41,7 +42,6 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
 
-
 class ClaudePlanner(PlannerBase):
     """Real planner backed by the Anthropic API. Requires the `anthropic` package."""
 
@@ -50,7 +50,7 @@ class ClaudePlanner(PlannerBase):
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
 
-    def next_step(self, task, tool_names, history):
+    def next_step(self, task, tool_names, history, memories=None):
         system = (
             "You are LEVI's planner. Given a task, available tools, and the "
             "history of actions taken so far, decide the single next action.\n"
@@ -79,16 +79,33 @@ class GeminiPlanner(PlannerBase):
         from google import genai
         self.client = genai.Client(api_key=api_key)
         self.model = model
+        self.session_prompt_tokens = 0
+        self.session_output_tokens = 0
+        
+    def reset_session_stats(self):
+        self.session_prompt_tokens = 0
+        self.session_output_tokens = 0
 
-    def next_step(self, task, tool_names, history):
+    def next_step(self, task, tool_names, history, memories=None):
         system_instruction = (
             "You are LEVI's planner. Given a task, available tools, and the "
             "history of actions taken so far, decide the single next action.\n"
             f"Available tools: {tool_names}\n"
+        )
+        
+        if memories:
+            system_instruction += "\nRelevant Past Experiences:\n"
+            for m in memories:
+                # Provide task, plan logic, actions, and outcome as a string
+                exp = f"Task: {m.task}\nOutcome: {m.outcome.value}\nActions Taken: {json.dumps([{'tool': a.tool_name, 'input': a.tool_input, 'output': a.tool_output} for a in m.actions])}\n"
+                system_instruction += exp + "\n"
+                
+        system_instruction += (
             "Respond with ONLY a JSON object, no other text, matching one of:\n"
             '{"done": false, "tool": "<name>", "tool_input": {...}, "reasoning": "..."}\n'
             '{"done": true, "reasoning": "..."}'
         )
+        
         user = json.dumps({"task": task, "history": history})
 
         from google.genai import types
@@ -102,6 +119,10 @@ class GeminiPlanner(PlannerBase):
             contents=user,
             config=config,
         )
+        
+        if getattr(resp, "usage_metadata", None):
+            self.session_prompt_tokens += getattr(resp.usage_metadata, "prompt_token_count", 0)
+            self.session_output_tokens += getattr(resp.usage_metadata, "candidates_token_count", 0)
         
         text = resp.text.strip()
         text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "agent_test_1",
+    "category": "memory_helpful",
+    "task": "Find the largest file in /tmp and report its size.",
+    "expected_answer": "463641"
+  },
+  {
+    "id": "agent_test_2",
+    "category": "memory_neutral",
+    "task": "Calculate 12 * (3 + 4)",
+    "expected_answer": "84"
+  },
+  {
+    "id": "agent_test_3",
+    "category": "memory_helpful",
+    "task": "Write a python script to /tmp/test_script.py",
+    "expected_answer": "test_script.py"
+  }
+]

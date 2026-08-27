@@ -60,7 +60,8 @@ def main():
     if not args.task:
         parser.error("Provide a task, or use --stats / --recent")
 
-    record = agent.run(args.task)
+    run_result = agent.run(args.task)
+    record = run_result.record
     
     # Format the result
     result_lines = [
